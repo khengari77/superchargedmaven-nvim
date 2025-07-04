@@ -43,6 +43,10 @@ M.setup = function()
   vim.api.nvim_create_user_command("SupermavenClearLog", function()
     api.clear_log()
   end, {})
+
+  vim.api.nvim_create_user_command("SupermavenManageContext", function()
+    require("supermaven-nvim.context_manager").open()
+  end, {})
 end
 
 return M

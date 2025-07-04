@@ -81,6 +81,13 @@ end
 ---@param file_name string
 ---@param event_type "text_changed" | "cursor"
 function BinaryLifecycle:on_update(buffer, file_name, event_type)
+  -- Check if the file is allowed 
+  if not config.is_path_allowed(file_name) then
+    preview:dispose_inlay() -- Clear any suggestion if the file becomes disallowed
+    log:debug("Context denied, ignoring update for: " .. file_name)
+    return
+  end
+
   if config.ignore_filetypes[vim.bo.ft] or vim.tbl_contains(config.ignore_filetypes, vim.bo.filetype) then
     return
   end
@@ -588,6 +595,14 @@ end
 ---@param full_path string
 ---@param buffer_text string
 function BinaryLifecycle:document_changed(full_path, buffer_text)
+  
+  if not config.is_path_allowed(full_path) then
+    log:debug("Context denied, skipping file change notification for: " .. full_path)
+    -- Also remove it from the list in case it was there before the rule was changed
+    self.changed_document_list[full_path] = nil
+    return
+  end
+
   self.changed_document_list[full_path] = {
     path = full_path,
     content = buffer_text,
