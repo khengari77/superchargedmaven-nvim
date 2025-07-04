@@ -55,4 +55,11 @@ function M.is_path_allowed(file_path)
   return permission
 end
 
-return M
+return setmetatable(M, {
+  __index = function(_, key)
+    if key == "setup" then
+      return M.setup
+    end
+    return rawget(M.config, key)
+  end,
+})
